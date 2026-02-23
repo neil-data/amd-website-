@@ -1,0 +1,21 @@
+<svg width="1366" height="768" viewBox="0 0 1366 768" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1366" height="768" fill="#F3F3F3"/>
+  <text x="420" y="280" fill="#0A0A0A" font-family="Inter, Arial, sans-serif" font-size="96" font-weight="700">Integrity Score</text>
+
+  <rect x="420" y="380" width="560" height="10" rx="5" fill="#0A0A0A"/>
+  <rect x="420" y="380" width="170" height="10" rx="5" fill="#CFCFCF"/>
+  <text x="920" y="386" fill="#0A0A0A" font-family="Inter, Arial, sans-serif" font-size="42" font-weight="500">21,34</text>
+
+  <path d="M420 420C480 390 530 470 590 430C650 390 710 500 770 430C830 360 890 450 980 430" stroke="#0A0A0A" stroke-width="8" fill="none" stroke-linecap="round"/>
+  <g fill="#0A0A0A">
+    <circle cx="430" cy="416" r="10"/><circle cx="455" cy="420" r="10"/><circle cx="480" cy="430" r="10"/>
+    <circle cx="505" cy="438" r="10"/><circle cx="530" cy="450" r="10"/><circle cx="555" cy="460" r="10"/>
+    <circle cx="580" cy="470" r="10"/><circle cx="605" cy="466" r="10"/><circle cx="630" cy="452" r="10"/>
+    <circle cx="655" cy="435" r="10"/><circle cx="680" cy="420" r="10"/><circle cx="705" cy="415" r="10"/>
+    <circle cx="730" cy="420" r="10"/><circle cx="755" cy="432" r="10"/><circle cx="780" cy="448" r="10"/>
+    <circle cx="805" cy="460" r="10"/><circle cx="830" cy="450" r="10"/><circle cx="855" cy="438" r="10"/>
+    <circle cx="880" cy="420" r="10"/><circle cx="905" cy="414" r="10"/><circle cx="930" cy="420" r="10"/>
+  </g>
+
+  <text x="420" y="540" fill="#0A0A0A" font-family="Inter, Arial, sans-serif" font-size="42" font-weight="400">Composite trust index based on consistency, transparency, and process</text>
+</svg>

@@ -1,0 +1,22 @@
+<svg width="1366" height="768" viewBox="0 0 1366 768" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1366" height="768" fill="#F3F3F3"/>
+  <text x="160" y="140" fill="#0A0A0A" font-family="Inter, Arial, sans-serif" font-size="62" font-weight="500">Human Generation</text>
+  <text x="935" y="140" fill="#0A0A0A" font-family="Inter, Arial, sans-serif" font-size="62" font-weight="500">Assisted Generation</text>
+
+  <rect x="160" y="205" width="470" height="300" stroke="#0A0A0A" stroke-width="3"/>
+  <rect x="735" y="205" width="470" height="300" stroke="#0A0A0A" stroke-width="3"/>
+
+  <path d="M160 355H630M160 425H630M160 285H630" stroke="#BFBFBF" stroke-width="2"/>
+  <path d="M735 355H1205M735 425H1205M735 285H1205" stroke="#BFBFBF" stroke-width="2"/>
+
+  <path d="M170 360C200 380 220 330 240 450C260 520 290 290 320 330C350 370 380 190 400 310C420 430 450 190 470 330C490 470 520 280 550 360C575 420 600 300 630 340" stroke="#0A0A0A" stroke-width="4" fill="none"/>
+  <path d="M745 285C780 280 820 355 860 300C900 250 940 430 980 360C1020 290 1060 470 1100 390C1130 340 1160 360 1200 330" stroke="#0A0A0A" stroke-width="4" fill="none"/>
+
+  <circle cx="680" cy="462" r="124" fill="#ECECEC" stroke="#C8C8C8" stroke-width="2"/>
+  <path d="M598 430A90 90 0 0 1 760 430" stroke="#0A0A0A" stroke-width="5"/>
+  <path d="M680 462L760 420" stroke="#0A0A0A" stroke-width="7" stroke-linecap="round"/>
+  <circle cx="680" cy="462" r="16" fill="#0A0A0A"/>
+
+  <text x="560" y="640" fill="#0A0A0A" font-family="Inter, Arial, sans-serif" font-size="72" font-weight="600">78%</text>
+  <text x="675" y="640" fill="#0A0A0A" font-family="Inter, Arial, sans-serif" font-size="62" font-weight="400">Assisted</text>
+</svg>

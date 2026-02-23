@@ -1,0 +1,27 @@
+<svg width="1366" height="768" viewBox="0 0 1366 768" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1366" height="768" fill="#F3F3F3"/>
+  <text x="410" y="140" fill="#0A0A0A" font-family="Inter, Arial, sans-serif" font-size="64" font-weight="700">PERFORMANCE VERIFICATION</text>
+
+  <g stroke="#0A0A0A" stroke-width="4" fill="none">
+    <circle cx="220" cy="340" r="74"/>
+    <circle cx="390" cy="320" r="70"/>
+    <circle cx="560" cy="310" r="66"/>
+    <circle cx="250" cy="480" r="82"/>
+    <circle cx="420" cy="520" r="78"/>
+    <circle cx="580" cy="520" r="64"/>
+    <circle cx="1005" cy="460" r="110"/>
+  </g>
+
+  <g stroke="#0A0A0A" stroke-width="3" stroke-linecap="round">
+    <path d="M630 500C760 430 790 560 900 500C940 480 955 450 980 450"/>
+    <path d="M300 420C350 380 380 410 420 380C460 350 480 370 520 350"/>
+  </g>
+
+  <circle cx="950" cy="450" r="14" fill="#0A0A0A"/>
+  <text x="925" y="470" fill="#0A0A0A" font-family="Inter, Arial, sans-serif" font-size="44" font-weight="600">VALIDATED</text>
+  <text x="948" y="520" fill="#0A0A0A" font-family="Inter, Arial, sans-serif" font-size="44" font-weight="600">OUTCOMES</text>
+
+  <text x="150" y="245" fill="#0A0A0A" font-family="Inter, Arial, sans-serif" font-size="44" font-weight="500">CHALLENGE</text>
+  <text x="325" y="250" fill="#0A0A0A" font-family="Inter, Arial, sans-serif" font-size="44" font-weight="500">CHALLENGE</text>
+  <text x="470" y="665" fill="#0A0A0A" font-family="Inter, Arial, sans-serif" font-size="44" font-weight="500">CHALLENGE EXECUTION</text>
+</svg>
