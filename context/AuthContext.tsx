@@ -10,7 +10,8 @@ import {
   signOut,
   User,
 } from 'firebase/auth';
-import { auth } from '@/lib/firebase';
+import { doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore';
+import { auth, db } from '@/lib/firebase';
 
 export type UserRole = 'student' | 'recruiter';
 
@@ -62,8 +63,47 @@ export function AuthProvider({ children }: PropsWithChildren) {
     return initials || 'SR';
   };
 
+  const resolveRoleFromStorage = (): UserRole => {
+    const savedRole = localStorage.getItem(ROLE_STORAGE_KEY);
+    if (savedRole === 'student' || savedRole === 'recruiter') {
+      return savedRole;
+    }
+    return 'student';
+  };
+
+  const getRoleFromFirestore = async (uid: string): Promise<UserRole | null> => {
+    try {
+      const userRef = doc(db, 'users', uid);
+      const userDoc = await getDoc(userRef);
+      if (!userDoc.exists()) {
+        return null;
+      }
+
+      const firestoreRole = userDoc.data().role;
+      return firestoreRole === 'student' || firestoreRole === 'recruiter' ? firestoreRole : null;
+    } catch {
+      return null;
+    }
+  };
+
+  const persistRoleToFirestore = async (uid: string, email: string | null, nextRole: UserRole) => {
+    try {
+      await setDoc(
+        doc(db, 'users', uid),
+        {
+          email,
+          role: nextRole,
+          createdAt: serverTimestamp(),
+        },
+        { merge: true },
+      );
+    } catch {
+      return;
+    }
+  };
+
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (!user) {
         setIsAuthenticated(false);
         setRole(null);
@@ -76,26 +116,29 @@ export function AuthProvider({ children }: PropsWithChildren) {
       const resolvedName = getNameFromUser(user);
       setUserName(resolvedName);
       setUserInitials(getInitials(resolvedName));
-      const savedRole = localStorage.getItem(ROLE_STORAGE_KEY);
-      if (savedRole === 'student' || savedRole === 'recruiter') {
-        setRole(savedRole);
-      } else {
-        setRole('student');
-      }
+      const firestoreRole = await getRoleFromFirestore(user.uid);
+      const resolvedRole = firestoreRole ?? resolveRoleFromStorage();
+      setRole(resolvedRole);
+      localStorage.setItem(ROLE_STORAGE_KEY, resolvedRole);
     });
 
     return () => unsubscribe();
   }, []);
 
   const login = async (email: string, password: string, nextRole: UserRole) => {
-    await signInWithEmailAndPassword(auth, email, password);
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    const firestoreRole = await getRoleFromFirestore(userCredential.user.uid);
+    const resolvedRole: UserRole = firestoreRole ?? nextRole;
+
     setIsAuthenticated(true);
-    setRole(nextRole);
-    localStorage.setItem(ROLE_STORAGE_KEY, nextRole);
+    setRole(resolvedRole);
+    localStorage.setItem(ROLE_STORAGE_KEY, resolvedRole);
   };
 
   const signup = async (email: string, password: string, nextRole: UserRole) => {
-    await createUserWithEmailAndPassword(auth, email, password);
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    await persistRoleToFirestore(userCredential.user.uid, userCredential.user.email, nextRole);
+
     setIsAuthenticated(true);
     setRole(nextRole);
     localStorage.setItem(ROLE_STORAGE_KEY, nextRole);
@@ -103,10 +146,14 @@ export function AuthProvider({ children }: PropsWithChildren) {
 
   const loginWithGoogle = async (nextRole: UserRole) => {
     const provider = new GoogleAuthProvider();
-    await signInWithPopup(auth, provider);
+    const userCredential = await signInWithPopup(auth, provider);
+    const firestoreRole = await getRoleFromFirestore(userCredential.user.uid);
+    const resolvedRole = firestoreRole ?? nextRole;
+    await persistRoleToFirestore(userCredential.user.uid, userCredential.user.email, resolvedRole);
+
     setIsAuthenticated(true);
-    setRole(nextRole);
-    localStorage.setItem(ROLE_STORAGE_KEY, nextRole);
+    setRole(resolvedRole);
+    localStorage.setItem(ROLE_STORAGE_KEY, resolvedRole);
   };
 
   const logout = async () => {

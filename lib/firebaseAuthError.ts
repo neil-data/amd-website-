@@ -41,5 +41,17 @@ export function getFirebaseAuthErrorMessage(error: unknown): string {
     return 'Network error while contacting Firebase. Check your internet connection and try again.';
   }
 
+  if (code === 'permission-denied') {
+    return 'Firestore permission denied. Update Firebase Firestore security rules for authenticated users.';
+  }
+
+  if (code === 'unavailable') {
+    return 'Firestore is temporarily unavailable. Please try again in a moment.';
+  }
+
+  if (code) {
+    return `Authentication failed (${code}).`;
+  }
+
   return 'Authentication failed. Please try again.';
 }
