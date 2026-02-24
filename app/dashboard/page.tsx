@@ -19,6 +19,8 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/context/AuthContext';
+import StaggerContainer, { StaggerItem } from '@/components/motion/StaggerContainer';
+import SkillRadarChart from '@/components/authenticated/SkillRadarChart';
 
 type Page = 'dashboard' | 'challenges' | 'exchange' | 'leaderboard';
 
@@ -52,6 +54,14 @@ const RECENT_ACTIVITY = [
   { id: 3, type: 'Challenge', name: 'Bug Hunt', status: 'Failed', date: '2024-03-18', points: '0' },
 ];
 
+const RADAR_DATA = [
+  { metric: 'Learning', score: 84 },
+  { metric: 'Teaching', score: 76 },
+  { metric: 'Challenges', score: 88 },
+  { metric: 'Collaboration', score: 74 },
+  { metric: 'Consistency', score: 81 },
+];
+
 function Sidebar({ currentPage, setPage, onLogout }: { currentPage: Page; setPage: (p: Page) => void; onLogout: () => void }) {
   const menuItems: { id: Page; label: string; icon: typeof LayoutDashboard }[] = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -61,7 +71,12 @@ function Sidebar({ currentPage, setPage, onLogout }: { currentPage: Page; setPag
   ];
 
   return (
-    <aside className="sticky top-0 hidden h-screen w-64 flex-col border-r border-black bg-white md:flex">
+    <motion.aside
+      initial={{ opacity: 0, x: -24 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ duration: 0.5, ease: 'easeOut' }}
+      className="sticky top-0 hidden h-screen w-64 flex-col border-r border-black bg-white md:flex"
+    >
       <div className="p-8">
         <h1 className="text-2xl font-bold tracking-tight">SkillRank AI</h1>
       </div>
@@ -85,7 +100,7 @@ function Sidebar({ currentPage, setPage, onLogout }: { currentPage: Page; setPag
           <span className="font-medium">Logout</span>
         </button>
       </div>
-    </aside>
+    </motion.aside>
   );
 }
 
@@ -114,36 +129,50 @@ function TopNav({ setPage, onLogout }: { setPage: (p: Page) => void; onLogout: (
 
       <AnimatePresence>
         {isMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="absolute left-0 top-full w-full border-b border-black bg-white p-6 md:hidden"
-          >
-            <nav className="space-y-4">
-              {[
-                { label: 'Dashboard', key: 'dashboard' as Page },
-                { label: 'Challenges', key: 'challenges' as Page },
-                { label: 'Exchange', key: 'exchange' as Page },
-                { label: 'Leaderboard', key: 'leaderboard' as Page },
-              ].map((item) => (
-                <button
-                  key={item.key}
-                  onClick={() => {
-                    setPage(item.key);
-                    setIsMenuOpen(false);
-                  }}
-                  className="block w-full text-left text-lg font-medium"
-                >
-                  {item.label}
+          <>
+            <motion.button
+              type="button"
+              aria-label="Close menu backdrop"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              onClick={() => setIsMenuOpen(false)}
+              className="fixed inset-0 z-40 bg-black/25 md:hidden"
+            />
+
+            <motion.aside
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+              className="fixed right-0 top-0 z-50 h-screen w-[86vw] max-w-sm border-l border-black/10 bg-white px-6 py-20 md:hidden"
+            >
+              <nav className="space-y-4">
+                {[
+                  { label: 'Dashboard', key: 'dashboard' as Page },
+                  { label: 'Challenges', key: 'challenges' as Page },
+                  { label: 'Exchange', key: 'exchange' as Page },
+                  { label: 'Leaderboard', key: 'leaderboard' as Page },
+                ].map((item) => (
+                  <button
+                    key={item.key}
+                    onClick={() => {
+                      setPage(item.key);
+                      setIsMenuOpen(false);
+                    }}
+                    className="block w-full text-left text-lg font-medium"
+                  >
+                    {item.label}
+                  </button>
+                ))}
+                <hr className="border-black/10" />
+                <button onClick={onLogout} className="block w-full text-left text-lg font-medium text-black/60">
+                  Logout
                 </button>
-              ))}
-              <hr className="border-black/10" />
-              <button onClick={onLogout} className="block w-full text-left text-lg font-medium text-black/60">
-                Logout
-              </button>
-            </nav>
-          </motion.div>
+              </nav>
+            </motion.aside>
+          </>
         )}
       </AnimatePresence>
     </header>
@@ -164,49 +193,61 @@ function DashboardPage() {
         </button>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      <StaggerContainer stagger={0.16} className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {[
           { label: 'Rank', value: 'Gold II', sub: 'Top 5% globally' },
           { label: 'Total Points', value: '8,540', sub: '+450 this week' },
           { label: 'Sessions Taught', value: '12', sub: '4.9/5.0 rating' },
           { label: 'Sessions Learned', value: '28', sub: '5 skills mastered' },
         ].map((stat) => (
-          <div key={stat.label} className="card">
-            <p className="text-sm font-medium uppercase tracking-wider text-black/60">{stat.label}</p>
-            <p className="mt-2 text-3xl font-bold">{stat.value}</p>
-            <p className="mt-1 text-xs text-black/40">{stat.sub}</p>
-          </div>
+          <StaggerItem key={stat.label}>
+            <div className="card">
+              <p className="text-sm font-medium uppercase tracking-wider text-black/60">{stat.label}</p>
+              <p className="mt-2 text-3xl font-bold">{stat.value}</p>
+              <p className="mt-1 text-xs text-black/40">{stat.sub}</p>
+            </div>
+          </StaggerItem>
         ))}
-      </div>
+      </StaggerContainer>
+
+      <SkillRadarChart title="Skill Momentum Radar" data={RADAR_DATA} />
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-bold">Points Breakdown</h2>
           </div>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <StaggerContainer stagger={0.15} className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             {[
               { label: 'Learning', value: '3,200', icon: History },
               { label: 'Teaching', value: '2,800', icon: User },
               { label: 'Challenges', value: '2,540', icon: Trophy },
             ].map((item) => (
-              <div key={item.label} className="card flex items-center gap-4">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-black/5">
-                  <item.icon className="h-5 w-5" />
+              <StaggerItem key={item.label}>
+                <div className="card flex items-center gap-4">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-black/5">
+                    <item.icon className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold uppercase text-black/40">{item.label}</p>
+                    <p className="text-lg font-bold">{item.value}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-xs font-bold uppercase text-black/40">{item.label}</p>
-                  <p className="text-lg font-bold">{item.value}</p>
-                </div>
-              </div>
+              </StaggerItem>
             ))}
-          </div>
+          </StaggerContainer>
 
           <div className="flex items-center justify-between pt-4">
             <h2 className="text-xl font-bold">Recent Activity</h2>
             <button className="text-sm font-medium underline">View all</button>
           </div>
-          <div className="overflow-hidden rounded-xl border border-black">
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true, amount: 0.2 }}
+            transition={{ duration: 0.6, ease: 'easeOut' }}
+            className="overflow-hidden rounded-xl border border-black"
+          >
             <table className="w-full text-left">
               <thead className="border-b border-black bg-black/5">
                 <tr>
@@ -234,7 +275,7 @@ function DashboardPage() {
                 ))}
               </tbody>
             </table>
-          </div>
+          </motion.div>
         </div>
 
         <div className="space-y-6">

@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { useState } from 'react';
 import BrandLogo from '@/components/BrandLogo';
 import { useAuth } from '@/context/AuthContext';
@@ -47,9 +47,9 @@ export default function Navbar() {
 
   return (
     <motion.nav
-      initial={{ opacity: 0, y: -20 }}
+      initial={{ opacity: 0, y: -24 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.25, duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
+      transition={{ delay: 0.12, duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
       className="fixed top-0 left-0 right-0 z-50 w-full border-b border-black/10 bg-white/90 px-6 py-4 backdrop-blur md:px-12"
     >
       <div className="mx-auto max-w-[1920px]">
@@ -65,9 +65,16 @@ export default function Navbar() {
                 <Link
                   key={item.label}
                   href={item.href}
-                  className={`text-xs uppercase tracking-widest transition-colors ${active ? 'text-black' : 'text-black/65 hover:text-black'}`}
+                  className={`relative text-xs uppercase tracking-widest transition-colors ${active ? 'text-black' : 'text-black/65 hover:text-black'}`}
                 >
                   {item.label}
+                  {active && (
+                    <motion.span
+                      layoutId="nav-underline"
+                      className="absolute -bottom-1 left-0 right-0 h-px bg-black"
+                      transition={{ duration: 0.3, ease: 'easeOut' }}
+                    />
+                  )}
                 </Link>
               );
             })}
@@ -95,37 +102,55 @@ export default function Navbar() {
             <span className={`h-[1.5px] w-5 bg-black transition-transform ${menuOpen ? '-translate-y-[4px] -rotate-45' : ''}`} />
           </button>
         </div>
-
-        <motion.div
-          initial={false}
-          animate={{ height: menuOpen ? 'auto' : 0, opacity: menuOpen ? 1 : 0 }}
-          transition={{ duration: 0.25 }}
-          className="overflow-hidden lg:hidden"
-        >
-          <div className="mt-4 space-y-2 border-t border-black/10 pt-4">
-            {items.map((item) => (
-              <Link
-                key={item.label}
-                href={item.href}
-                onClick={() => setMenuOpen(false)}
-                className="block rounded-lg px-3 py-2 text-sm text-black/80 transition-colors hover:bg-black/5 hover:text-black"
-              >
-                {item.label}
-              </Link>
-            ))}
-
-            {isAuthenticated && (
-              <button
-                type="button"
-                onClick={onLogout}
-                className="w-full rounded-lg border border-black px-3 py-2 text-left text-sm text-black transition-colors hover:bg-black hover:text-white"
-              >
-                Logout
-              </button>
-            )}
-          </div>
-        </motion.div>
       </div>
+
+      <AnimatePresence>
+        {menuOpen && (
+          <>
+            <motion.button
+              type="button"
+              aria-label="Close menu backdrop"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.25 }}
+              onClick={() => setMenuOpen(false)}
+              className="fixed inset-0 z-40 bg-black/25 lg:hidden"
+            />
+
+            <motion.aside
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+              className="fixed right-0 top-0 z-50 h-screen w-[86vw] max-w-sm border-l border-black/10 bg-white px-6 py-20 shadow-2xl lg:hidden"
+            >
+              <nav className="space-y-2">
+                {items.map((item) => (
+                  <Link
+                    key={item.label}
+                    href={item.href}
+                    onClick={() => setMenuOpen(false)}
+                    className="block rounded-lg px-3 py-2 text-sm text-black/80 transition-colors hover:bg-black/5 hover:text-black"
+                  >
+                    {item.label}
+                  </Link>
+                ))}
+
+                {isAuthenticated && (
+                  <button
+                    type="button"
+                    onClick={onLogout}
+                    className="mt-4 w-full rounded-lg border border-black px-3 py-2 text-left text-sm text-black transition-colors hover:bg-black hover:text-white"
+                  >
+                    Logout
+                  </button>
+                )}
+              </nav>
+            </motion.aside>
+          </>
+        )}
+      </AnimatePresence>
     </motion.nav>
   );
 }

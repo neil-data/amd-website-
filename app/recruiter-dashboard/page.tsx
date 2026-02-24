@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/context/AuthContext';
+import StaggerContainer, { StaggerItem } from '@/components/motion/StaggerContainer';
 
 type Page = 'recruiter' | 'records';
 
@@ -32,7 +33,12 @@ function Sidebar({ currentPage, setPage, onLogout }: { currentPage: Page; setPag
   ];
 
   return (
-    <aside className="sticky top-0 hidden h-screen w-64 flex-col border-r border-black bg-white md:flex">
+    <motion.aside
+      initial={{ opacity: 0, x: -24 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ duration: 0.5, ease: 'easeOut' }}
+      className="sticky top-0 hidden h-screen w-64 flex-col border-r border-black bg-white md:flex"
+    >
       <div className="p-8">
         <h1 className="text-2xl font-bold tracking-tight">SkillRank AI</h1>
       </div>
@@ -56,7 +62,7 @@ function Sidebar({ currentPage, setPage, onLogout }: { currentPage: Page; setPag
           <span className="font-medium">Logout</span>
         </button>
       </div>
-    </aside>
+    </motion.aside>
   );
 }
 
@@ -85,34 +91,48 @@ function TopNav({ setPage, onLogout }: { setPage: (p: Page) => void; onLogout: (
 
       <AnimatePresence>
         {isMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="absolute left-0 top-full w-full border-b border-black bg-white p-6 md:hidden"
-          >
-            <nav className="space-y-4">
-              {[
-                { label: 'Recruiter Dashboard', key: 'recruiter' as Page },
-                { label: 'Records', key: 'records' as Page },
-              ].map((item) => (
-                <button
-                  key={item.key}
-                  onClick={() => {
-                    setPage(item.key);
-                    setIsMenuOpen(false);
-                  }}
-                  className="block w-full text-left text-lg font-medium"
-                >
-                  {item.label}
+          <>
+            <motion.button
+              type="button"
+              aria-label="Close menu backdrop"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              onClick={() => setIsMenuOpen(false)}
+              className="fixed inset-0 z-40 bg-black/25 md:hidden"
+            />
+
+            <motion.aside
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+              className="fixed right-0 top-0 z-50 h-screen w-[86vw] max-w-sm border-l border-black/10 bg-white px-6 py-20 md:hidden"
+            >
+              <nav className="space-y-4">
+                {[
+                  { label: 'Recruiter Dashboard', key: 'recruiter' as Page },
+                  { label: 'Records', key: 'records' as Page },
+                ].map((item) => (
+                  <button
+                    key={item.key}
+                    onClick={() => {
+                      setPage(item.key);
+                      setIsMenuOpen(false);
+                    }}
+                    className="block w-full text-left text-lg font-medium"
+                  >
+                    {item.label}
+                  </button>
+                ))}
+                <hr className="border-black/10" />
+                <button onClick={onLogout} className="block w-full text-left text-lg font-medium text-black/60">
+                  Logout
                 </button>
-              ))}
-              <hr className="border-black/10" />
-              <button onClick={onLogout} className="block w-full text-left text-lg font-medium text-black/60">
-                Logout
-              </button>
-            </nav>
-          </motion.div>
+              </nav>
+            </motion.aside>
+          </>
         )}
       </AnimatePresence>
     </header>
@@ -138,9 +158,10 @@ function RecruitersPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-4">
+      <StaggerContainer stagger={0.16} className="grid grid-cols-1 gap-8 lg:grid-cols-4">
         <div className="space-y-6 lg:col-span-1">
-          <div className="card space-y-6">
+          <StaggerItem>
+            <div className="card space-y-6">
             <h3 className="text-lg font-bold">Filter Talent</h3>
             <div className="space-y-4">
               <div className="space-y-2">
@@ -165,9 +186,11 @@ function RecruitersPage() {
               </div>
               <button className="btn-primary w-full text-sm">Apply Filters</button>
             </div>
-          </div>
+            </div>
+          </StaggerItem>
 
-          <div className="card border-dashed bg-black/5">
+          <StaggerItem>
+            <div className="card border-dashed bg-black/5">
             <h4 className="mb-2 text-sm font-bold">Hiring Roles</h4>
             <div className="space-y-2">
               <div className="rounded border border-black/10 bg-white p-2">
@@ -179,13 +202,15 @@ function RecruitersPage() {
                 <p className="text-[10px] text-black/40">1 Candidate saved</p>
               </div>
             </div>
-          </div>
+            </div>
+          </StaggerItem>
         </div>
 
         <div className="space-y-6 lg:col-span-3">
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+          <StaggerContainer stagger={0.15} className="grid grid-cols-1 gap-6 md:grid-cols-2">
             {CANDIDATES.map((candidate) => (
-              <div key={candidate.name} className="card group transition-all hover:border-black">
+              <StaggerItem key={candidate.name}>
+                <div className="card group transition-all hover:border-black">
                 <div className="mb-4 flex items-start justify-between">
                   <div className="flex items-center gap-3">
                     <div className="flex h-12 w-12 items-center justify-center rounded-full bg-black font-bold text-white">
@@ -226,11 +251,12 @@ function RecruitersPage() {
                   <button className="btn-secondary flex-1 py-2 text-xs">Shortlist</button>
                   <button className="btn-primary flex-1 py-2 text-xs">Contact</button>
                 </div>
-              </div>
+                </div>
+              </StaggerItem>
             ))}
-          </div>
+          </StaggerContainer>
         </div>
-      </div>
+      </StaggerContainer>
     </div>
   );
 }
@@ -268,7 +294,13 @@ function RecordsPage() {
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-xl border border-black">
+      <motion.div
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true, amount: 0.2 }}
+        transition={{ duration: 0.6, ease: 'easeOut' }}
+        className="overflow-hidden rounded-xl border border-black"
+      >
         <table className="w-full text-left">
           <thead className="border-b border-black bg-black/5">
             <tr>
@@ -294,7 +326,7 @@ function RecordsPage() {
             ))}
           </tbody>
         </table>
-      </div>
+      </motion.div>
     </div>
   );
 }

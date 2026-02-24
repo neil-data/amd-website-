@@ -24,10 +24,10 @@ interface SkillRadarChartProps {
 export default function SkillRadarChart({ title, data }: SkillRadarChartProps) {
   return (
     <motion.section
-      initial={{ opacity: 0, y: 12 }}
-      whileInView={{ opacity: 1, y: 0 }}
+      initial={{ opacity: 0, scale: 0.9 }}
+      whileInView={{ opacity: 1, scale: 1 }}
       viewport={{ once: true, amount: 0.25 }}
-      transition={{ duration: 0.35 }}
+      transition={{ duration: 0.7, ease: 'easeOut' }}
       className="rounded-2xl border border-black/10 bg-black/[0.02] p-5"
     >
       <h2 className="font-heading text-xl font-semibold text-black">{title}</h2>
