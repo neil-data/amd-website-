@@ -5,7 +5,7 @@ import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 
 const firebaseConfig = {
-  apiKey: 'AIzaSyDFdpSzVKCokMj2947QtRmF3Odnl9_4RaY',
+  apiKey: 'YOUR_API_KEY_HERE',
   authDomain: 'amda-cf25f.firebaseapp.com',
   projectId: 'amda-cf25f',
   storageBucket: 'amda-cf25f.firebasestorage.app',
