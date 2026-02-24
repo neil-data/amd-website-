@@ -66,7 +66,7 @@ function Sidebar({ currentPage, setPage, onLogout }: { currentPage: Page; setPag
   );
 }
 
-function TopNav({ setPage, onLogout }: { setPage: (p: Page) => void; onLogout: () => void }) {
+function TopNav({ setPage, onLogout, userInitials }: { setPage: (p: Page) => void; onLogout: () => void; userInitials: string }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
@@ -85,7 +85,7 @@ function TopNav({ setPage, onLogout }: { setPage: (p: Page) => void; onLogout: (
             <input type="text" placeholder="Search..." className="w-32 bg-transparent text-sm outline-none" />
           </div>
           <Bell className="h-5 w-5 cursor-pointer" />
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-black text-xs font-bold text-white">HR</div>
+          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-black text-xs font-bold text-white">{userInitials}</div>
         </div>
       </div>
 
@@ -139,7 +139,7 @@ function TopNav({ setPage, onLogout }: { setPage: (p: Page) => void; onLogout: (
   );
 }
 
-function RecruitersPage() {
+function RecruitersPage({ userName }: { userName: string }) {
   return (
     <div className="space-y-8">
       <div className="flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
@@ -150,6 +150,7 @@ function RecruitersPage() {
               <Trophy className="h-3 w-3" /> VERIFIED
             </span>
           </div>
+          <p className="text-sm font-medium text-black">Welcome, {userName}</p>
           <p className="text-black/60">Find and hire the top technical talent based on real contributions.</p>
         </div>
         <div className="flex gap-2">
@@ -333,11 +334,12 @@ function RecordsPage() {
 
 export default function RecruiterDashboardPage() {
   const [page, setPage] = useState<Page>('recruiter');
-  const { logout } = useAuth();
+  const { logout, userName, userInitials } = useAuth();
   const router = useRouter();
+  const displayName = userName ?? 'SkillRank User';
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
     router.push('/login');
   };
 
@@ -346,7 +348,7 @@ export default function RecruiterDashboardPage() {
       <Sidebar currentPage={page} setPage={setPage} onLogout={handleLogout} />
 
       <div className="flex flex-1 flex-col">
-        <TopNav setPage={setPage} onLogout={handleLogout} />
+        <TopNav setPage={setPage} onLogout={handleLogout} userInitials={userInitials} />
 
         <main className="mx-auto w-full max-w-7xl flex-1 p-6 md:p-10">
           <AnimatePresence mode="wait">
@@ -357,7 +359,7 @@ export default function RecruiterDashboardPage() {
               exit={{ opacity: 0, x: -10 }}
               transition={{ duration: 0.2 }}
             >
-              {page === 'recruiter' && <RecruitersPage />}
+              {page === 'recruiter' && <RecruitersPage userName={displayName} />}
               {page === 'records' && <RecordsPage />}
             </motion.div>
           </AnimatePresence>

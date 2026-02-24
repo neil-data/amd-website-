@@ -10,18 +10,45 @@ import AnimatedButton from '@/components/auth/AnimatedButton';
 import AuthFormFields from '@/components/auth/AuthFormFields';
 import GoogleButton from '@/components/auth/GoogleButton';
 import { useAuth, UserRole } from '@/context/AuthContext';
+import { getFirebaseAuthErrorMessage } from '@/lib/firebaseAuthError';
 
 export default function SignupPage() {
   const router = useRouter();
-  const { login } = useAuth();
+  const { signup, loginWithGoogle } = useAuth();
 
   const [role, setRole] = useState<UserRole>('student');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (event: FormEvent) => {
+  const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
-    login(role);
+    setError(null);
+
+    try {
+      await signup(email, password, role);
+    } catch (err) {
+      setError(getFirebaseAuthErrorMessage(err));
+      return;
+    }
+
+    if (role === 'student') {
+      router.push('/dashboard');
+      return;
+    }
+    router.push('/recruiter-dashboard');
+  };
+
+  const handleGoogleSignup = async () => {
+    setError(null);
+
+    try {
+      await loginWithGoogle(role);
+    } catch (err) {
+      setError(getFirebaseAuthErrorMessage(err));
+      return;
+    }
+
     if (role === 'student') {
       router.push('/dashboard');
       return;
@@ -37,8 +64,9 @@ export default function SignupPage() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <RoleSelector value={role} onChange={setRole} />
             <AuthFormFields email={email} password={password} onEmailChange={setEmail} onPasswordChange={setPassword} />
+            {error && <p className="text-sm text-red-600">{error}</p>}
             <AnimatedButton type="submit" label="Create Account" />
-            <GoogleButton />
+            <GoogleButton onClick={handleGoogleSignup} />
           </form>
 
           <p className="pt-2 text-center text-sm text-neutral-600">

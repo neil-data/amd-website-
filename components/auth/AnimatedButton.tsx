@@ -1,9 +1,8 @@
 'use client';
 
-import { motion } from 'framer-motion';
-import { ButtonHTMLAttributes } from 'react';
+import { HTMLMotionProps, motion } from 'framer-motion';
 
-interface AnimatedButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+interface AnimatedButtonProps extends HTMLMotionProps<'button'> {
   label: string;
   variant?: 'primary' | 'secondary';
   fullWidth?: boolean;

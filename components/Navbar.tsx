@@ -24,8 +24,6 @@ export default function Navbar() {
     { label: 'Challenges', href: '/#challenges' },
     { label: 'Leaderboard', href: '/#leaderboard' },
     { label: 'Recruiters', href: '/#recruiters' },
-    { label: 'Login', href: '/login' },
-    { label: 'Get Started', href: '/signup' },
   ];
 
   const authedItems: NavItem[] = [
@@ -39,8 +37,8 @@ export default function Navbar() {
 
   const items = isAuthenticated ? authedItems : publicItems;
 
-  const onLogout = () => {
-    logout();
+  const onLogout = async () => {
+    await logout();
     setMenuOpen(false);
     router.push('/');
   };
@@ -78,6 +76,23 @@ export default function Navbar() {
                 </Link>
               );
             })}
+
+            {!isAuthenticated && (
+              <>
+                <Link
+                  href="/login"
+                  className="rounded-full border border-black/20 px-4 py-2 text-xs uppercase tracking-widest text-black transition-colors hover:border-black"
+                >
+                  Login
+                </Link>
+                <Link
+                  href="/signup"
+                  className="rounded-full border border-black bg-black px-4 py-2 text-xs uppercase tracking-widest text-white transition-colors hover:bg-neutral-800"
+                >
+                  Get Started
+                </Link>
+              </>
+            )}
 
             {isAuthenticated && (
               <button
@@ -136,6 +151,25 @@ export default function Navbar() {
                     {item.label}
                   </Link>
                 ))}
+
+                {!isAuthenticated && (
+                  <>
+                    <Link
+                      href="/login"
+                      onClick={() => setMenuOpen(false)}
+                      className="mt-4 block w-full rounded-lg border border-black/20 px-3 py-2 text-sm text-center text-black transition-colors hover:border-black"
+                    >
+                      Login
+                    </Link>
+                    <Link
+                      href="/signup"
+                      onClick={() => setMenuOpen(false)}
+                      className="block w-full rounded-lg border border-black bg-black px-3 py-2 text-sm text-center text-white transition-colors hover:bg-neutral-800"
+                    >
+                      Get Started
+                    </Link>
+                  </>
+                )}
 
                 {isAuthenticated && (
                   <button

@@ -104,7 +104,7 @@ function Sidebar({ currentPage, setPage, onLogout }: { currentPage: Page; setPag
   );
 }
 
-function TopNav({ setPage, onLogout }: { setPage: (p: Page) => void; onLogout: () => void }) {
+function TopNav({ setPage, onLogout, userInitials }: { setPage: (p: Page) => void; onLogout: () => void; userInitials: string }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
@@ -123,7 +123,7 @@ function TopNav({ setPage, onLogout }: { setPage: (p: Page) => void; onLogout: (
             <input type="text" placeholder="Search..." className="w-32 bg-transparent text-sm outline-none" />
           </div>
           <Bell className="h-5 w-5 cursor-pointer" />
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-black text-xs font-bold text-white">AP</div>
+          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-black text-xs font-bold text-white">{userInitials}</div>
         </div>
       </div>
 
@@ -179,12 +179,12 @@ function TopNav({ setPage, onLogout }: { setPage: (p: Page) => void; onLogout: (
   );
 }
 
-function DashboardPage() {
+function DashboardPage({ userName, userInitials }: { userName: string; userInitials: string }) {
   return (
     <div className="space-y-8">
       <div className="flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
         <div>
-          <h1 className="text-3xl font-bold">Good morning, Aarav</h1>
+          <h1 className="text-3xl font-bold">Good morning, {userName}</h1>
           <p className="text-black/60">Here&apos;s what&apos;s happening with your account today.</p>
         </div>
         <button className="btn-primary flex items-center gap-2">
@@ -282,10 +282,10 @@ function DashboardPage() {
           <h2 className="text-xl font-bold">Profile Summary</h2>
           <div className="card bg-black text-white">
             <div className="mb-6 flex items-center gap-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white font-bold text-black">AP</div>
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white font-bold text-black">{userInitials}</div>
               <div>
-                <p className="font-bold">Aarav Patel</p>
-                <p className="text-xs text-white/60">Senior Developer</p>
+                <p className="font-bold">{userName}</p>
+                <p className="text-xs text-white/60">Student</p>
               </div>
             </div>
             <div className="space-y-4">
@@ -499,8 +499,9 @@ function ExchangePage() {
   );
 }
 
-function LeaderboardPage() {
+function LeaderboardPage({ userName }: { userName: string }) {
   const [activeTab, setActiveTab] = useState('Coders');
+  const leaderboardRows = LEADERBOARD.map((user) => (user.isUser ? { ...user, user: userName } : user));
 
   return (
     <div className="space-y-8">
@@ -534,7 +535,7 @@ function LeaderboardPage() {
       </div>
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-        {LEADERBOARD.slice(0, 3).map((user) => (
+        {leaderboardRows.slice(0, 3).map((user) => (
           <div key={user.rank} className={`card relative text-center ${user.rank === 1 ? 'z-10 scale-105 border-2 border-black bg-black text-white' : ''}`}>
             <div className={`mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full font-bold ${user.rank === 1 ? 'bg-white text-black' : 'bg-black text-white'}`}>
               {user.rank}
@@ -557,7 +558,7 @@ function LeaderboardPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-black/10">
-            {LEADERBOARD.map((user) => (
+            {leaderboardRows.map((user) => (
               <tr key={user.rank} className={`transition-colors hover:bg-black/5 ${user.isUser ? 'bg-black/5 font-bold' : ''}`}>
                 <td className="px-6 py-4 font-mono">{user.rank}</td>
                 <td className="px-6 py-4 flex items-center gap-3">
@@ -580,11 +581,12 @@ function LeaderboardPage() {
 
 export default function StudentDashboardPage() {
   const [page, setPage] = useState<Page>('dashboard');
-  const { logout } = useAuth();
+  const { logout, userName, userInitials } = useAuth();
   const router = useRouter();
+  const displayName = userName ?? 'SkillRank User';
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
     router.push('/login');
   };
 
@@ -593,7 +595,7 @@ export default function StudentDashboardPage() {
       <Sidebar currentPage={page} setPage={setPage} onLogout={handleLogout} />
 
       <div className="flex flex-1 flex-col">
-        <TopNav setPage={setPage} onLogout={handleLogout} />
+        <TopNav setPage={setPage} onLogout={handleLogout} userInitials={userInitials} />
 
         <main className="mx-auto w-full max-w-7xl flex-1 p-6 md:p-10">
           <AnimatePresence mode="wait">
@@ -604,10 +606,10 @@ export default function StudentDashboardPage() {
               exit={{ opacity: 0, x: -10 }}
               transition={{ duration: 0.2 }}
             >
-              {page === 'dashboard' && <DashboardPage />}
+              {page === 'dashboard' && <DashboardPage userName={displayName} userInitials={userInitials} />}
               {page === 'challenges' && <ChallengesPage />}
               {page === 'exchange' && <ExchangePage />}
-              {page === 'leaderboard' && <LeaderboardPage />}
+              {page === 'leaderboard' && <LeaderboardPage userName={displayName} />}
             </motion.div>
           </AnimatePresence>
         </main>
