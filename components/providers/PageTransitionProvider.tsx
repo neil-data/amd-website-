@@ -8,13 +8,13 @@ export default function PageTransitionProvider({ children }: { children: ReactNo
   const pathname = usePathname();
 
   return (
-    <AnimatePresence mode="wait" initial={false}>
+    <AnimatePresence mode="sync" initial={false}>
       <motion.div
         key={pathname}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        transition={{ duration: 0.5, ease: 'easeOut' }}
+        transition={{ duration: 0.15, ease: 'easeOut' }}
       >
         {children}
       </motion.div>

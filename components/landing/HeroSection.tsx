@@ -2,6 +2,7 @@
 
 import dynamic from 'next/dynamic';
 import { motion } from 'framer-motion';
+import { useEffect, useState } from 'react';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import BrandLogo from '@/components/BrandLogo';
 import FadeUp from '@/components/motion/FadeUp';
@@ -16,6 +17,39 @@ const HeroCanvas = dynamic(() => import('@/components/landing/HeroCanvas'), {
 
 export default function HeroSection() {
   const isMobile = useIsMobile();
+  const [showCanvas, setShowCanvas] = useState(false);
+
+  useEffect(() => {
+    if (isMobile) {
+      setShowCanvas(false);
+      return;
+    }
+
+    const browserWindow = window as Window & {
+      requestIdleCallback?: (callback: IdleRequestCallback, options?: IdleRequestOptions) => number;
+      cancelIdleCallback?: (handle: number) => void;
+    };
+
+    if (browserWindow.requestIdleCallback) {
+      const idleId = browserWindow.requestIdleCallback(() => {
+        setShowCanvas(true);
+      }, { timeout: 200 });
+
+      return () => {
+        if (browserWindow.cancelIdleCallback) {
+          browserWindow.cancelIdleCallback(idleId);
+        }
+      };
+    }
+
+    const timerId = window.setTimeout(() => {
+      setShowCanvas(true);
+    }, 120);
+
+    return () => {
+      window.clearTimeout(timerId);
+    };
+  }, [isMobile]);
 
   return (
     <section id="hero" className="relative flex min-h-screen w-full items-center justify-center px-6 pb-20 pt-32 md:px-12">
@@ -61,7 +95,11 @@ export default function HeroSection() {
               <div className="h-28 w-28 rotate-12 rounded-xl border border-black/30 bg-black/[0.04]" />
             </div>
           ) : (
-            <HeroCanvas />
+            showCanvas ? (
+              <HeroCanvas />
+            ) : (
+              <div className="h-[360px] w-full animate-pulse rounded-2xl border border-black/10 bg-black/[0.03] md:h-[460px]" />
+            )
           )}
         </motion.div>
       </div>

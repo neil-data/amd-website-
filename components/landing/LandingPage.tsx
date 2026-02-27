@@ -1,13 +1,15 @@
+import dynamic from 'next/dynamic';
 import HeroSection from '@/components/landing/HeroSection';
-import TrustCrisisSection from '@/components/landing/TrustCrisisSection';
-import FeaturesSection from '@/components/landing/FeaturesSection';
-import HowItWorksSection from '@/components/landing/HowItWorksSection';
-import ChallengesPreviewSection from '@/components/landing/ChallengesPreviewSection';
-import LeaderboardPreviewSection from '@/components/landing/LeaderboardPreviewSection';
-import RecruitersSection from '@/components/landing/RecruitersSection';
-import SiteFooter from '@/components/landing/SiteFooter';
-import ScrollProgress from '@/components/landing/ScrollProgress';
-import MouseSpotlight from '@/components/landing/MouseSpotlight';
+
+const TrustCrisisSection = dynamic(() => import('@/components/landing/TrustCrisisSection'));
+const FeaturesSection = dynamic(() => import('@/components/landing/FeaturesSection'));
+const HowItWorksSection = dynamic(() => import('@/components/landing/HowItWorksSection'));
+const ChallengesPreviewSection = dynamic(() => import('@/components/landing/ChallengesPreviewSection'));
+const LeaderboardPreviewSection = dynamic(() => import('@/components/landing/LeaderboardPreviewSection'));
+const RecruitersSection = dynamic(() => import('@/components/landing/RecruitersSection'));
+const SiteFooter = dynamic(() => import('@/components/landing/SiteFooter'));
+const ScrollProgress = dynamic(() => import('@/components/landing/ScrollProgress'), { ssr: false });
+const MouseSpotlight = dynamic(() => import('@/components/landing/MouseSpotlight'), { ssr: false });
 
 export default function LandingPage() {
   return (

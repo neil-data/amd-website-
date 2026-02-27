@@ -35,3 +35,30 @@ npm run dev
 ```
 
 Visit [http://localhost:3000](http://localhost:3000) to view the application.
+
+## Firebase Admin Credentials (Required for API routes)
+
+The backend API routes use `firebase-admin` and require server credentials.
+
+Create a `.env.local` file with **one** of these options:
+
+### Option A: Full service account JSON (recommended)
+
+```env
+FIREBASE_SERVICE_ACCOUNT_KEY={"type":"service_account","project_id":"...","private_key":"-----BEGIN PRIVATE KEY-----\\n...\\n-----END PRIVATE KEY-----\\n","client_email":"..."}
+FIREBASE_PROJECT_ID=amda-cf25f
+```
+
+### Option B: Split environment variables
+
+```env
+FIREBASE_PROJECT_ID=amda-cf25f
+FIREBASE_CLIENT_EMAIL=your-service-account@your-project.iam.gserviceaccount.com
+FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
+```
+
+If you use Google Application Default Credentials instead, set:
+
+```env
+GOOGLE_APPLICATION_CREDENTIALS=/absolute/path/to/service-account.json
+```

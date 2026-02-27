@@ -39,6 +39,7 @@ export default function SidebarNav({ role, onNavigate }: SidebarNavProps) {
           <Link
             key={item.href + item.label}
             href={item.href}
+            prefetch={false}
             onClick={onNavigate}
             className={`relative block rounded-lg px-3 py-2 text-sm transition-colors ${
               active ? 'bg-black text-white' : 'text-black/70 hover:bg-black/5 hover:text-black'

@@ -16,7 +16,9 @@ import { auth, db } from '@/lib/firebase';
 export type UserRole = 'student' | 'recruiter';
 
 interface AuthState {
+  isAuthLoading: boolean;
   isAuthenticated: boolean;
+  userId: string | null;
   role: UserRole | null;
   userName: string | null;
   userInitials: string;
@@ -34,7 +36,9 @@ const ROLE_STORAGE_KEY = 'skillrank-role';
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: PropsWithChildren) {
+  const [isAuthLoading, setIsAuthLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
   const [role, setRole] = useState<UserRole | null>(null);
   const [userName, setUserName] = useState<string | null>(null);
   const [userInitials, setUserInitials] = useState('SR');
@@ -86,13 +90,16 @@ export function AuthProvider({ children }: PropsWithChildren) {
     }
   };
 
-  const persistRoleToFirestore = async (uid: string, email: string | null, nextRole: UserRole) => {
+  const persistRoleToFirestore = async (uid: string, email: string | null, name: string, nextRole: UserRole) => {
     try {
       await setDoc(
         doc(db, 'users', uid),
         {
+          name,
           email,
           role: nextRole,
+          totalPoints: 0,
+          integrityScore: 100,
           createdAt: serverTimestamp(),
         },
         { merge: true },
@@ -106,13 +113,16 @@ export function AuthProvider({ children }: PropsWithChildren) {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (!user) {
         setIsAuthenticated(false);
+        setUserId(null);
         setRole(null);
         setUserName(null);
         setUserInitials('SR');
+        setIsAuthLoading(false);
         return;
       }
 
       setIsAuthenticated(true);
+      setUserId(user.uid);
       const resolvedName = getNameFromUser(user);
       setUserName(resolvedName);
       setUserInitials(getInitials(resolvedName));
@@ -120,6 +130,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
       const resolvedRole = firestoreRole ?? resolveRoleFromStorage();
       setRole(resolvedRole);
       localStorage.setItem(ROLE_STORAGE_KEY, resolvedRole);
+      setIsAuthLoading(false);
     });
 
     return () => unsubscribe();
@@ -137,7 +148,12 @@ export function AuthProvider({ children }: PropsWithChildren) {
 
   const signup = async (email: string, password: string, nextRole: UserRole) => {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    await persistRoleToFirestore(userCredential.user.uid, userCredential.user.email, nextRole);
+    await persistRoleToFirestore(
+      userCredential.user.uid,
+      userCredential.user.email,
+      getNameFromUser(userCredential.user),
+      nextRole,
+    );
 
     setIsAuthenticated(true);
     setRole(nextRole);
@@ -149,7 +165,12 @@ export function AuthProvider({ children }: PropsWithChildren) {
     const userCredential = await signInWithPopup(auth, provider);
     const firestoreRole = await getRoleFromFirestore(userCredential.user.uid);
     const resolvedRole = firestoreRole ?? nextRole;
-    await persistRoleToFirestore(userCredential.user.uid, userCredential.user.email, resolvedRole);
+    await persistRoleToFirestore(
+      userCredential.user.uid,
+      userCredential.user.email,
+      getNameFromUser(userCredential.user),
+      resolvedRole,
+    );
 
     setIsAuthenticated(true);
     setRole(resolvedRole);
@@ -159,6 +180,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
   const logout = async () => {
     await signOut(auth);
     setIsAuthenticated(false);
+    setUserId(null);
     setRole(null);
     setUserName(null);
     setUserInitials('SR');
@@ -166,8 +188,8 @@ export function AuthProvider({ children }: PropsWithChildren) {
   };
 
   const value = useMemo<AuthContextValue>(
-    () => ({ isAuthenticated, role, userName, userInitials, login, signup, loginWithGoogle, logout }),
-    [isAuthenticated, role, userInitials, userName],
+    () => ({ isAuthLoading, isAuthenticated, userId, role, userName, userInitials, login, signup, loginWithGoogle, logout }),
+    [isAuthLoading, isAuthenticated, role, userId, userInitials, userName],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
-import { useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import BrandLogo from '@/components/BrandLogo';
 import { useAuth } from '@/context/AuthContext';
 
@@ -18,28 +18,41 @@ export default function Navbar() {
   const { isAuthenticated, role, logout } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const publicItems: NavItem[] = [
-    { label: 'Features', href: '/#features' },
-    { label: 'How It Works', href: '/#how-it-works' },
-    { label: 'Challenges', href: '/#challenges' },
-    { label: 'Leaderboard', href: '/#leaderboard' },
-    { label: 'Recruiters', href: '/#recruiters' },
-  ];
+  const publicItems = useMemo<NavItem[]>(
+    () => [
+      { label: 'Features', href: '/#features' },
+      { label: 'How It Works', href: '/#how-it-works' },
+      { label: 'Challenges', href: '/#challenges' },
+      { label: 'Leaderboard', href: '/#leaderboard' },
+      { label: 'Recruiters', href: '/#recruiters' },
+    ],
+    [],
+  );
 
-  const authedItems: NavItem[] = [
-    { label: 'Dashboard', href: role === 'recruiter' ? '/recruiter-dashboard' : '/dashboard' },
-    { label: 'Challenges', href: '/challenges' },
-    { label: 'Exchange', href: '/exchange' },
-    { label: 'Leaderboard', href: '/leaderboard' },
-    ...(role === 'recruiter' ? [{ label: 'Recruiters', href: '/recruiter-dashboard' }] : []),
-    { label: 'Profile', href: '/profile' },
-  ];
+  const authedItems = useMemo<NavItem[]>(
+    () => [
+      { label: 'Dashboard', href: role === 'recruiter' ? '/recruiter-dashboard' : '/dashboard' },
+      { label: 'Challenges', href: '/challenges' },
+      { label: 'Exchange', href: '/exchange' },
+      { label: 'Leaderboard', href: '/leaderboard' },
+      ...(role === 'recruiter' ? [{ label: 'Recruiters', href: '/recruiter-dashboard' }] : []),
+      { label: 'Profile', href: '/profile' },
+    ],
+    [role],
+  );
 
-  const items = isAuthenticated ? authedItems : publicItems;
+  const items = useMemo(() => (isAuthenticated ? authedItems : publicItems), [isAuthenticated, authedItems, publicItems]);
+
+  const prefetchHref = useCallback((href: string) => {
+    if (!href.startsWith('/') || href.includes('#')) {
+      return;
+    }
+    router.prefetch(href);
+  }, [router]);
 
   const onLogout = async () => {
-    await logout();
     setMenuOpen(false);
+    await logout();
     router.push('/');
   };
 
@@ -63,6 +76,7 @@ export default function Navbar() {
                 <Link
                   key={item.label}
                   href={item.href}
+                  onMouseEnter={() => prefetchHref(item.href)}
                   className={`relative text-xs uppercase tracking-widest transition-colors ${active ? 'text-black' : 'text-black/65 hover:text-black'}`}
                 >
                   {item.label}
@@ -81,12 +95,14 @@ export default function Navbar() {
               <>
                 <Link
                   href="/login"
+                  onMouseEnter={() => prefetchHref('/login')}
                   className="rounded-full border border-black/20 px-4 py-2 text-xs uppercase tracking-widest text-black transition-colors hover:border-black"
                 >
                   Login
                 </Link>
                 <Link
                   href="/signup"
+                  onMouseEnter={() => prefetchHref('/signup')}
                   className="rounded-full border border-black bg-black px-4 py-2 text-xs uppercase tracking-widest text-white transition-colors hover:bg-neutral-800"
                 >
                   Get Started
@@ -145,6 +161,7 @@ export default function Navbar() {
                   <Link
                     key={item.label}
                     href={item.href}
+                    onMouseEnter={() => prefetchHref(item.href)}
                     onClick={() => setMenuOpen(false)}
                     className="block rounded-lg px-3 py-2 text-sm text-black/80 transition-colors hover:bg-black/5 hover:text-black"
                   >
@@ -156,6 +173,7 @@ export default function Navbar() {
                   <>
                     <Link
                       href="/login"
+                      onMouseEnter={() => prefetchHref('/login')}
                       onClick={() => setMenuOpen(false)}
                       className="mt-4 block w-full rounded-lg border border-black/20 px-3 py-2 text-sm text-center text-black transition-colors hover:border-black"
                     >
@@ -163,6 +181,7 @@ export default function Navbar() {
                     </Link>
                     <Link
                       href="/signup"
+                      onMouseEnter={() => prefetchHref('/signup')}
                       onClick={() => setMenuOpen(false)}
                       className="block w-full rounded-lg border border-black bg-black px-3 py-2 text-sm text-center text-white transition-colors hover:bg-neutral-800"
                     >

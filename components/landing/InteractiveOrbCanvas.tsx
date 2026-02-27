@@ -1,5 +1,7 @@
 'use client';
 
+import Image from 'next/image';
+
 interface OrbProps {
   accent?: 'dark' | 'muted';
 }
@@ -12,15 +14,13 @@ export default function InteractiveOrbCanvas({ accent = 'dark' }: OrbProps) {
 
   return (
     <div className="relative h-48 w-48 overflow-hidden rounded-2xl border border-black/10 bg-white md:h-56 md:w-56">
-      <iframe
-        src="https://my.spline.design/techinspired3dassetsairobo-6YLLIwGwru4FXJ3IusiRC84m/"
-        title="AI Study 3D Asset"
-        className="h-full w-full [filter:grayscale(1)_saturate(0)_contrast(1.06)_brightness(1.2)]"
-        frameBorder="0"
-        loading="lazy"
-        allow="autoplay; fullscreen"
-      >
-      </iframe>
+      <Image
+        src="/images/Screenshot (146).png"
+        alt="SkillRank dashboard snapshot"
+        fill
+        sizes="(max-width: 768px) 192px, 224px"
+        className="object-cover object-center [filter:grayscale(1)_contrast(1.04)_brightness(1.04)]"
+      />
       <div className={`pointer-events-none absolute inset-0 ${overlayClass}`} />
     </div>
   );

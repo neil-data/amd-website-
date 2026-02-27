@@ -1,11 +1,12 @@
 'use client';
 
 import { motion, useMotionValue, useSpring } from 'framer-motion';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useIsMobile } from '@/hooks/useIsMobile';
 
 export default function MouseSpotlight() {
   const isMobile = useIsMobile();
+  const frameRef = useRef<number | null>(null);
   const mouseX = useMotionValue(-200);
   const mouseY = useMotionValue(-200);
 
@@ -18,12 +19,25 @@ export default function MouseSpotlight() {
     }
 
     const onMove = (event: MouseEvent) => {
-      mouseX.set(event.clientX);
-      mouseY.set(event.clientY);
+      if (frameRef.current !== null) {
+        return;
+      }
+
+      const { clientX, clientY } = event;
+      frameRef.current = window.requestAnimationFrame(() => {
+        mouseX.set(clientX);
+        mouseY.set(clientY);
+        frameRef.current = null;
+      });
     };
 
-    window.addEventListener('mousemove', onMove);
-    return () => window.removeEventListener('mousemove', onMove);
+    window.addEventListener('mousemove', onMove, { passive: true });
+    return () => {
+      window.removeEventListener('mousemove', onMove);
+      if (frameRef.current !== null) {
+        window.cancelAnimationFrame(frameRef.current);
+      }
+    };
   }, [isMobile, mouseX, mouseY]);
 
   if (isMobile) {

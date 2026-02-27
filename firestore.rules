@@ -1,0 +1,71 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    function isRecruiter() {
+      return signedIn()
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'recruiter';
+    }
+
+    match /users/{uid} {
+      allow create: if isOwner(uid)
+        && request.resource.data.role in ['student', 'recruiter']
+        && request.resource.data.email is string
+        && request.resource.data.name is string;
+
+      allow read: if isOwner(uid) || isRecruiter();
+
+      allow update: if isOwner(uid);
+
+      allow delete: if false;
+    }
+
+    match /submissions/{submissionId} {
+      allow create: if signedIn()
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.challengeId is string
+        && request.resource.data.score is number
+        && request.resource.data.aiProbability is number
+        && request.resource.data.timeTaken is number;
+
+      allow read: if (signedIn() && resource.data.userId == request.auth.uid) || isRecruiter();
+
+      allow update, delete: if false;
+    }
+
+    match /challenges/{challengeId} {
+      allow read: if signedIn();
+      allow write: if false;
+    }
+
+    match /exchanges/{exchangeId} {
+      allow create: if signedIn()
+        && request.resource.data.teacherId == request.auth.uid
+        && request.resource.data.learnerId is string
+        && request.resource.data.skill is string
+        && request.resource.data.status in ['active', 'completed']
+        && request.resource.data.pointsAwarded is number;
+
+      allow read: if signedIn()
+        && (
+          resource.data.teacherId == request.auth.uid
+          || resource.data.learnerId == request.auth.uid
+          || isRecruiter()
+        );
+
+      allow update: if signedIn()
+        && resource.data.teacherId == request.auth.uid
+        && request.resource.data.teacherId == resource.data.teacherId
+        && request.resource.data.learnerId == resource.data.learnerId;
+
+      allow delete: if false;
+    }
+  }
+}
