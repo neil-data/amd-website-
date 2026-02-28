@@ -2,7 +2,6 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { AnimatePresence, motion } from 'framer-motion';
 import { useCallback, useMemo, useState } from 'react';
 import BrandLogo from '@/components/BrandLogo';
 import { useAuth } from '@/context/AuthContext';
@@ -57,12 +56,7 @@ export default function Navbar() {
   };
 
   return (
-    <motion.nav
-      initial={{ opacity: 0, y: -24 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.12, duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
-      className="fixed top-0 left-0 right-0 z-50 w-full border-b border-black/10 bg-white/90 px-6 py-4 backdrop-blur md:px-12"
-    >
+    <nav className="fixed top-0 left-0 right-0 z-50 w-full border-b border-black/10 bg-white/90 px-6 py-4 backdrop-blur md:px-12 transition-transform duration-300 ease-out">
       <div className="mx-auto max-w-[1920px]">
         <div className="flex items-center justify-between">
           <Link href="/" className="transition-transform duration-300 hover:scale-[1.01]" onClick={() => setMenuOpen(false)}>
@@ -80,13 +74,7 @@ export default function Navbar() {
                   className={`relative text-xs uppercase tracking-widest transition-colors ${active ? 'text-black' : 'text-black/65 hover:text-black'}`}
                 >
                   {item.label}
-                  {active && (
-                    <motion.span
-                      layoutId="nav-underline"
-                      className="absolute -bottom-1 left-0 right-0 h-px bg-black"
-                      transition={{ duration: 0.3, ease: 'easeOut' }}
-                    />
-                  )}
+                  {active && <span className="absolute -bottom-1 left-0 right-0 h-px bg-black transition-all duration-200" />}
                 </Link>
               );
             })}
@@ -135,27 +123,18 @@ export default function Navbar() {
         </div>
       </div>
 
-      <AnimatePresence>
-        {menuOpen && (
-          <>
-            <motion.button
-              type="button"
-              aria-label="Close menu backdrop"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.25 }}
-              onClick={() => setMenuOpen(false)}
-              className="fixed inset-0 z-40 bg-black/25 lg:hidden"
-            />
+      {menuOpen && (
+        <>
+          <button
+            type="button"
+            aria-label="Close menu backdrop"
+            onClick={() => setMenuOpen(false)}
+            className="fixed inset-0 z-40 bg-black/25 transition-opacity duration-200 lg:hidden"
+          />
 
-            <motion.aside
-              initial={{ x: '100%' }}
-              animate={{ x: 0 }}
-              exit={{ x: '100%' }}
-              transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-              className="fixed right-0 top-0 z-50 h-screen w-[86vw] max-w-sm border-l border-black/10 bg-white px-6 py-20 shadow-2xl lg:hidden"
-            >
+          <aside
+            className="fixed right-0 top-0 z-50 h-screen w-[86vw] max-w-sm translate-x-0 border-l border-black/10 bg-white px-6 py-20 shadow-2xl transition-transform duration-300 ease-out lg:hidden"
+          >
               <nav className="space-y-2">
                 {items.map((item) => (
                   <Link
@@ -200,10 +179,9 @@ export default function Navbar() {
                   </button>
                 )}
               </nav>
-            </motion.aside>
+            </aside>
           </>
         )}
-      </AnimatePresence>
-    </motion.nav>
+    </nav>
   );
 }

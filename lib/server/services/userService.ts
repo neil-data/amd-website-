@@ -1,5 +1,5 @@
 import { FieldValue } from 'firebase-admin/firestore';
-import { adminDb } from '@/lib/server/firebaseAdmin';
+import { getAdminDb } from '@/lib/server/firebaseAdmin';
 import { UserDocument } from '@/types/backend';
 
 function clamp(value: number, min = 0, max = 100) {
@@ -7,7 +7,7 @@ function clamp(value: number, min = 0, max = 100) {
 }
 
 export async function getUserById(uid: string): Promise<(UserDocument & { id: string }) | null> {
-  const snapshot = await adminDb.collection('users').doc(uid).get();
+  const snapshot = await getAdminDb().collection('users').doc(uid).get();
   if (!snapshot.exists) {
     return null;
   }
@@ -27,7 +27,7 @@ export async function getUserById(uid: string): Promise<(UserDocument & { id: st
 }
 
 export async function upsertUserProfile(uid: string, payload: Omit<UserDocument, 'createdAt'>) {
-  await adminDb
+  await getAdminDb()
     .collection('users')
     .doc(uid)
     .set(
@@ -40,9 +40,9 @@ export async function upsertUserProfile(uid: string, payload: Omit<UserDocument,
 }
 
 export async function updateUserAfterSubmission(uid: string, finalScore: number, aiProbability: number) {
-  const userRef = adminDb.collection('users').doc(uid);
+  const userRef = getAdminDb().collection('users').doc(uid);
 
-  return adminDb.runTransaction(async (transaction) => {
+  return getAdminDb().runTransaction(async (transaction) => {
     const userSnap = await transaction.get(userRef);
     const existing = userSnap.exists ? (userSnap.data() as Partial<UserDocument>) : {};
 
@@ -75,7 +75,7 @@ export async function updateUserAfterSubmission(uid: string, finalScore: number,
 }
 
 export async function getLeaderboard(limitCount = 50) {
-  const snapshot = await adminDb
+  const snapshot = await getAdminDb()
     .collection('users')
     .where('role', '==', 'student')
     .orderBy('totalPoints', 'desc')
@@ -99,7 +99,7 @@ export async function getLeaderboard(limitCount = 50) {
 }
 
 export async function getTopStudentsByIntegrity(limitCount = 20) {
-  const snapshot = await adminDb
+  const snapshot = await getAdminDb()
     .collection('users')
     .where('role', '==', 'student')
     .orderBy('integrityScore', 'desc')

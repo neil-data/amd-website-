@@ -1,9 +1,9 @@
 import { FieldValue } from 'firebase-admin/firestore';
-import { adminDb } from '@/lib/server/firebaseAdmin';
+import { getAdminDb } from '@/lib/server/firebaseAdmin';
 import { SubmissionDocument } from '@/types/backend';
 
 export async function createSubmission(payload: Omit<SubmissionDocument, 'createdAt'>) {
-  const ref = await adminDb.collection('submissions').add({
+  const ref = await getAdminDb().collection('submissions').add({
     ...payload,
     createdAt: FieldValue.serverTimestamp(),
   });
@@ -12,7 +12,7 @@ export async function createSubmission(payload: Omit<SubmissionDocument, 'create
 }
 
 export async function getSubmissionsByUser(uid: string) {
-  const snapshot = await adminDb
+  const snapshot = await getAdminDb()
     .collection('submissions')
     .where('userId', '==', uid)
     .orderBy('createdAt', 'desc')

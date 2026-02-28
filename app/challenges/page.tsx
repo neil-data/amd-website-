@@ -13,6 +13,7 @@ import { useAuth } from '@/context/AuthContext';
 interface ChallengeItem {
   id: string;
   title: string;
+  description: string;
   difficulty: 'Beginner' | 'Intermediate' | 'Advanced';
   category: string;
   duration: string;
@@ -22,6 +23,7 @@ interface ChallengeItem {
 interface ChallengeApiItem {
   id: string;
   title: string;
+  description: string;
   difficulty: string;
   category: string;
   points: number;
@@ -79,6 +81,7 @@ export default function ChallengesPage() {
           payload.challenges.map((challenge) => ({
             id: challenge.id,
             title: challenge.title,
+            description: challenge.description,
             difficulty: normalizeDifficulty(challenge.difficulty),
             category: challenge.category,
             duration: `${challenge.timeLimit} min`,

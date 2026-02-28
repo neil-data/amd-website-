@@ -1,5 +1,5 @@
 import { FieldValue } from 'firebase-admin/firestore';
-import { adminDb } from '@/lib/server/firebaseAdmin';
+import { getAdminDb } from '@/lib/server/firebaseAdmin';
 import { ExchangeDocument } from '@/types/backend';
 
 function toTimestamp(value: unknown): number {
@@ -10,7 +10,7 @@ function toTimestamp(value: unknown): number {
 }
 
 export async function createExchange(payload: Omit<ExchangeDocument, 'createdAt'>) {
-  const ref = await adminDb.collection('exchanges').add({
+  const ref = await getAdminDb().collection('exchanges').add({
     ...payload,
     createdAt: FieldValue.serverTimestamp(),
   });
@@ -19,6 +19,7 @@ export async function createExchange(payload: Omit<ExchangeDocument, 'createdAt'
 }
 
 export async function getExchangesForUser(uid: string) {
+  const adminDb = getAdminDb();
   const [teacherSnapshot, learnerSnapshot] = await Promise.all([
     adminDb.collection('exchanges').where('teacherId', '==', uid).get(),
     adminDb.collection('exchanges').where('learnerId', '==', uid).get(),

@@ -110,30 +110,41 @@ export function AuthProvider({ children }: PropsWithChildren) {
   };
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (!user) {
-        setIsAuthenticated(false);
-        setUserId(null);
-        setRole(null);
-        setUserName(null);
-        setUserInitials('SR');
+    let unsubscribe: (() => void) | undefined;
+
+    try {
+      unsubscribe = onAuthStateChanged(auth, async (user) => {
+        if (!user) {
+          setIsAuthenticated(false);
+          setUserId(null);
+          setRole(null);
+          setUserName(null);
+          setUserInitials('SR');
+          setIsAuthLoading(false);
+          return;
+        }
+
+        setIsAuthenticated(true);
+        setUserId(user.uid);
+        const resolvedName = getNameFromUser(user);
+        setUserName(resolvedName);
+        setUserInitials(getInitials(resolvedName));
+        const firestoreRole = await getRoleFromFirestore(user.uid);
+        const resolvedRole = firestoreRole ?? resolveRoleFromStorage();
+        setRole(resolvedRole);
+        localStorage.setItem(ROLE_STORAGE_KEY, resolvedRole);
         setIsAuthLoading(false);
-        return;
-      }
-
-      setIsAuthenticated(true);
-      setUserId(user.uid);
-      const resolvedName = getNameFromUser(user);
-      setUserName(resolvedName);
-      setUserInitials(getInitials(resolvedName));
-      const firestoreRole = await getRoleFromFirestore(user.uid);
-      const resolvedRole = firestoreRole ?? resolveRoleFromStorage();
-      setRole(resolvedRole);
-      localStorage.setItem(ROLE_STORAGE_KEY, resolvedRole);
+      });
+    } catch (error) {
+      console.error('Failed to initialize Firebase auth listener', error);
       setIsAuthLoading(false);
-    });
+    }
 
-    return () => unsubscribe();
+    return () => {
+      if (typeof unsubscribe === 'function') {
+        unsubscribe();
+      }
+    };
   }, []);
 
   const login = async (email: string, password: string, nextRole: UserRole) => {

@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { adminAuth, adminDb } from '@/lib/server/firebaseAdmin';
+import { getAdminAuth, getAdminDb } from '@/lib/server/firebaseAdmin';
 import { AuthenticatedContext, UserRole } from '@/types/backend';
 
 export class ApiAuthError extends Error {
@@ -26,8 +26,8 @@ export async function requireAuth(request: NextRequest): Promise<AuthenticatedCo
     throw new ApiAuthError('Missing auth token.', 401);
   }
 
-  const decoded = await adminAuth.verifyIdToken(token);
-  const userSnap = await adminDb.collection('users').doc(decoded.uid).get();
+  const decoded = await getAdminAuth().verifyIdToken(token);
+  const userSnap = await getAdminDb().collection('users').doc(decoded.uid).get();
 
   if (!userSnap.exists) {
     throw new ApiAuthError('User profile not found.', 404);

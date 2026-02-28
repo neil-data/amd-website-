@@ -61,12 +61,27 @@ function resolveCredential() {
   );
 }
 
-const adminApp: App = getApps().length
-  ? getApp()
-  : initializeApp({
-      credential: resolveCredential(),
-      projectId: process.env.FIREBASE_PROJECT_ID ?? 'amda-cf25f',
-    });
+let adminApp: App | null = null;
 
-export const adminAuth = getAuth(adminApp);
-export const adminDb = getFirestore(adminApp);
+function getAdminApp() {
+  if (adminApp) {
+    return adminApp;
+  }
+
+  adminApp = getApps().length
+    ? getApp()
+    : initializeApp({
+        credential: resolveCredential(),
+        projectId: process.env.FIREBASE_PROJECT_ID ?? 'amda-cf25f',
+      });
+
+  return adminApp;
+}
+
+export function getAdminAuth() {
+  return getAuth(getAdminApp());
+}
+
+export function getAdminDb() {
+  return getFirestore(getAdminApp());
+}

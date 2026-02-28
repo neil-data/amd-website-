@@ -5,6 +5,7 @@ import AnimatedButton from '@/components/auth/AnimatedButton';
 interface EditorChallenge {
   id: string;
   title: string;
+  description: string;
   difficulty: 'Beginner' | 'Intermediate' | 'Advanced';
   category: string;
   points: number;
@@ -45,8 +46,10 @@ export default function CodeEditorPanel({
   return (
     <section className="rounded-2xl border border-black/10 bg-white p-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 className="font-heading text-xl font-semibold">Code Editor</h2>
-        <p className="text-xs uppercase tracking-[0.16em] text-neutral-500">Write and submit your solution</p>
+        <h2 className="font-heading text-xl font-semibold">
+          {selected ? selected.title : 'Code Editor'}
+        </h2>
+        <p className="text-xs uppercase tracking-[0.16em] text-neutral-500">Read the problem, then write your solution</p>
       </div>
 
       <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-3">
@@ -93,9 +96,18 @@ export default function CodeEditorPanel({
       </div>
 
       {selected && (
-        <p className="mt-3 text-xs uppercase tracking-[0.14em] text-neutral-500">
-          {selected.category} • {selected.difficulty} • {selected.points} points • {selected.duration}
-        </p>
+        <>
+          <p className="mt-3 text-xs uppercase tracking-[0.14em] text-neutral-500">
+            {selected.category} • {selected.difficulty} • {selected.points} points • {selected.duration}
+          </p>
+
+          <div className="mt-3 rounded-xl border border-black/10 bg-black/[0.02] p-4">
+            <h3 className="text-sm font-semibold text-neutral-900">Problem</h3>
+            <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-neutral-800">
+              {selected.description}
+            </p>
+          </div>
+        </>
       )}
 
       <div className="mt-4 overflow-hidden rounded-xl border border-black/10 bg-black text-white">
