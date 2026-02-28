@@ -15,9 +15,11 @@ type SortKey = 'skillScore' | 'integrity';
 
 interface RankingTableProps {
   rows: RankingItem[];
+  selectedId?: string | null;
+  onSelect?: (id: string) => void;
 }
 
-export default function RankingTable({ rows }: RankingTableProps) {
+export default function RankingTable({ rows, selectedId, onSelect }: RankingTableProps) {
   const [sortKey, setSortKey] = useState<SortKey>('skillScore');
 
   const sorted = useMemo(() => {
@@ -77,6 +79,7 @@ export default function RankingTable({ rows }: RankingTableProps) {
               <th className="px-4 py-3">Role</th>
               <th className="px-4 py-3">SkillScore</th>
               <th className="px-4 py-3">Integrity</th>
+              {onSelect && <th className="px-4 py-3">Logs</th>}
             </tr>
           </thead>
           <AnimatePresence initial={false}>
@@ -89,13 +92,31 @@ export default function RankingTable({ rows }: RankingTableProps) {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -6 }}
                   transition={{ duration: 0.2 }}
-                  className="border-b border-black/5 last:border-0"
+                  onClick={() => onSelect?.(row.id)}
+                  className={`border-b border-black/5 last:border-0 transition-colors ${
+                    onSelect ? 'cursor-pointer hover:bg-black/[0.03]' : ''
+                  } ${selectedId === row.id ? 'bg-black/[0.05]' : ''}`}
                 >
                   <td className="px-4 py-3 font-medium">#{index + 1}</td>
                   <td className="px-4 py-3 font-medium text-black">{row.name}</td>
                   <td className="px-4 py-3 text-neutral-700">{row.role}</td>
                   <td className="px-4 py-3">{row.skillScore}</td>
                   <td className="px-4 py-3">{row.integrity}</td>
+                  {onSelect && (
+                    <td className="px-4 py-3">
+                      <button
+                        type="button"
+                        onClick={(e) => { e.stopPropagation(); onSelect(row.id); }}
+                        className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
+                          selectedId === row.id
+                            ? 'bg-black text-white'
+                            : 'border border-black/20 text-black hover:border-black/60'
+                        }`}
+                      >
+                        {selectedId === row.id ? 'Viewing' : 'View Logs'}
+                      </button>
+                    </td>
+                  )}
                 </motion.tr>
               ))}
             </tbody>

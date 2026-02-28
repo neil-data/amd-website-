@@ -15,7 +15,13 @@ function normalizePrivateKey(value: string) {
 function buildCertFromJson(raw: string) {
   // Strip surrounding single or double quotes (dotenv may leave them in some environments)
   const cleaned = raw.trim().replace(/^['"]|['"]$/g, '');
-  const parsed = JSON.parse(cleaned) as ServiceAccount;
+  // Vercel sometimes converts \n escape sequences inside JSON strings to actual newlines,
+  // which breaks JSON.parse. Re-escape any bare newlines while preserving already-escaped ones.
+  const sanitized = cleaned
+    .replace(/\\n/g, '\x00NL\x00')   // protect already-escaped \n
+    .replace(/\r?\n/g, '\\n')         // escape bare newlines
+    .replace(/\x00NL\x00/g, '\\n');  // restore protected ones
+  const parsed = JSON.parse(sanitized) as ServiceAccount;
   if (!parsed.client_email || !parsed.private_key) {
     throw new Error('Invalid FIREBASE_SERVICE_ACCOUNT_KEY: missing client_email/private_key');
   }

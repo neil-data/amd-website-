@@ -60,7 +60,10 @@ export default function LoginPage() {
     <>
       <Navbar />
       <main className="flex min-h-screen items-center justify-center px-4 pt-28 pb-10 sm:px-6">
-        <AuthCard title="Login" subtitle="Continue your SkillRank AI journey.">
+        <AuthCard
+          title={role === 'recruiter' ? 'Recruiter Login' : 'Student Login'}
+          subtitle={role === 'recruiter' ? 'Access your talent pipeline and candidate insights.' : 'Continue your SkillRank AI journey.'}
+        >
           <form onSubmit={handleSubmit} className="space-y-4">
             <RoleSelector value={role} onChange={setRole} />
             <AuthFormFields email={email} password={password} onEmailChange={setEmail} onPasswordChange={setPassword} />

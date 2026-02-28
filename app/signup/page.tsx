@@ -60,7 +60,10 @@ export default function SignupPage() {
     <>
       <Navbar />
       <main className="flex min-h-screen items-center justify-center px-4 pt-28 pb-10 sm:px-6">
-        <AuthCard title="Create Account" subtitle="Join SkillRank AI with your preferred role.">
+        <AuthCard
+          title={role === 'recruiter' ? 'Recruiter Sign Up' : 'Create Account'}
+          subtitle={role === 'recruiter' ? 'Set up your recruiter account to evaluate top talent.' : 'Join SkillRank AI with your preferred role.'}
+        >
           <form onSubmit={handleSubmit} className="space-y-4">
             <RoleSelector value={role} onChange={setRole} />
             <AuthFormFields email={email} password={password} onEmailChange={setEmail} onPasswordChange={setPassword} />
