@@ -20,7 +20,12 @@ service cloud.firestore {
         && request.resource.data.email is string
         && request.resource.data.name is string;
 
-      allow read: if isOwner(uid) || isRecruiter();
+      // get (single-doc fetch) stays strict: own doc or recruiter only.
+      allow get: if isOwner(uid) || isRecruiter();
+
+      // list (collection queries) allowed for any signed-in user so the
+      // dashboard leaderboard ranking query can succeed client-side.
+      allow list: if signedIn();
 
       allow update: if isOwner(uid);
 
