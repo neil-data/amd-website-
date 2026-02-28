@@ -13,7 +13,9 @@ function normalizePrivateKey(value: string) {
 }
 
 function buildCertFromJson(raw: string) {
-  const parsed = JSON.parse(raw) as ServiceAccount;
+  // Strip surrounding single or double quotes (dotenv may leave them in some environments)
+  const cleaned = raw.trim().replace(/^['"]|['"]$/g, '');
+  const parsed = JSON.parse(cleaned) as ServiceAccount;
   if (!parsed.client_email || !parsed.private_key) {
     throw new Error('Invalid FIREBASE_SERVICE_ACCOUNT_KEY: missing client_email/private_key');
   }
